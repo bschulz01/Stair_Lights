@@ -1,0 +1,5 @@
+WS2812.c:24:6:HAL_TIM_PWM_PulseFinishedCallback	16	static
+WS2812.c:30:10:getLEDBuf	16	static
+WS2812.c:34:6:setLED	24	static
+WS2812.c:47:6:clearLEDs	16	static
+WS2812.c:74:6:updateWS2812	24	static

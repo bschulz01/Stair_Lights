@@ -1,0 +1,9 @@
+uart.c:31:6:abortIT	8	static
+uart.c:37:6:receiveIT	8	static
+uart.c:46:9:cmdReady	8	static
+uart.c:51:6:sendACK	24	static
+uart.c:57:6:insertReadings	24	static
+uart.c:68:6:processCommand	24	static
+uart.c:86:13:initiateSensorUpdate	24	static
+uart.c:103:13:sendCommand	32	static
+uart.c:128:6:HAL_UART_RxCpltCallback	16	static

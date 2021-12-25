@@ -1,0 +1,11 @@
+uart.c:38:9:updateLEDs	8	static
+uart.c:47:6:abortIT	8	static
+uart.c:53:6:receiveIT	8	static
+uart.c:63:9:cmdReady	8	static
+uart.c:68:6:sendACK	24	static
+uart.c:73:13:sendCommand	40	static
+uart.c:93:6:registerReadings	24	static
+uart.c:106:9:getSensorVal	16	static
+uart.c:114:6:toggleLED	8	static
+uart.c:125:19:processCommand	40	static
+uart.c:197:6:HAL_UART_RxCpltCallback	16	static

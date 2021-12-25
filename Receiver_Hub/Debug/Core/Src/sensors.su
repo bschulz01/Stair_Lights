@@ -1,0 +1,5 @@
+sensors.c:32:9:mapSensor	16	static
+sensors.c:53:11:getNewReadings	24	static
+sensors.c:63:11:getLastReadings	8	static
+sensors.c:68:10:readSensor	16	static
+sensors.c:80:10:readADC	48	static
