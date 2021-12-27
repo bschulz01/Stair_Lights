@@ -13,13 +13,18 @@
 int animation_len[NUM_ANIMATIONS] = {
 		NUM_TOP_LEDS*2,
 		ANIMATION_2_CYCLE*5,
-		ANIMATION_3_TIME*3};
+		ANIMATION_3_TIME*3,
+		ANIMATION_4_TIME*ANIMATION_4_LOOPS*2
+};
 int animation_idx;
 int animation_num;
 
 // Random numbers to be used in the animations
 uint16_t randoms1[NUM_RANDOM_NUMS];
 uint16_t randoms2[NUM_RANDOM_NUMS];
+
+uint8_t anim4_color1[3];
+uint8_t anim4_color2[3];
 
 void updateAnimation() {
 	animation_idx++;
@@ -34,7 +39,8 @@ void updateAnimation() {
 	switch(animation_num) {
 	case 0: animation1(animation_idx); break;
 	case 1: animation2(animation_idx); break;
-	case 2: animation3(animation_idx); break;
+	case 2: animation2(animation_idx); break;
+	case 3: animation4(animation_idx); break;
 	}
 }
 
@@ -158,6 +164,80 @@ void animation3(int index) {
 	}
 }
 
+void animation4(int index) {
+	int step = index % (ANIMATION_4_TIME * 2);
+	int base1[3] = {48, 176, 240};
+	int base2[3] = {255, 0, 0};
+	int c1;
+	int c2;
+	int b1;
+	int b2;
+
+	if (index == 1) {
+		clearLEDs();
+		for (int i = 0; i < 3; i++) {
+			anim4_color1[i] = base1[i];
+			anim4_color2[i] = base2[i];
+		}
+	}
+	else {
+		// calculate the difference between the two colors
+		for (int i = 0; i < 3; i++) {
+			c1 = anim4_color1[i];
+			c2 = anim4_color2[i];
+			if (step < ANIMATION_4_TIME) {
+				b1 = base1[i];
+				b2 = base2[i];
+			}
+			else {
+				b1 = base2[i];
+				b2 = base1[i];
+			}
+
+			if (c1 < b2) {
+				c1 = c1 + 4;
+				if (c1 > 255) {
+					c1 = 255;
+				}
+			} else if (c1 > b2) {
+				c1 = c1 - 4;
+				if (c1 < 0) {
+					c1 = 0;
+				}
+			} else {
+				c1 = b2;
+			}
+
+			if (c2 < b1) {
+				c2 = c2 + 4;
+				if (c2 > 255) {
+					c2 = 255;
+				}
+			} else if (c2 > b1) {
+				c2 = c2 - 4;
+				if (c2 < 0) {
+					c2 = 0;
+				}
+			} else {
+				c2 = b1;
+			}
+
+			anim4_color1[i] = c1;
+			anim4_color2[i] = c2;
+		}
+	}
+
+	for (int i = 0; i < NUM_TOP_LEDS; i += 2) {
+		setLED(TOP, EMITTER, i, anim4_color1[0], anim4_color1[1], anim4_color1[2]);
+		setLED(TOP, RECEIVER, i, anim4_color2[0], anim4_color2[1], anim4_color2[2]);
+	}
+	for (int i = 0; i < NUM_BOT_LEDS; i += 2) {
+		setLED(BOT, EMITTER, i, anim4_color2[0], anim4_color2[1], anim4_color2[2]);
+		setLED(BOT, RECEIVER, i, anim4_color1[0], anim4_color1[1], anim4_color1[2]);
+	}
+}
+
+
 
 // UTILITy FUNCTIONS
 
@@ -211,6 +291,10 @@ void generateRGB(uint8_t num, uint8_t* r, uint8_t* g, uint8_t* b) {
 		*g = 70;
 		*b = 70;
 		break;
+	case 6:			// red
+		*r = 255;
+		*g = 0;
+		*b = 0;
 	default: 		// off
 		*r = 0;
 		*g = 0;

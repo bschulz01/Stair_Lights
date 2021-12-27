@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 
-#define NUM_ANIMATIONS 3
+#define NUM_ANIMATIONS 4
 // Number of colors for the generateRGB function
 #define NUM_COLORS 6
 // Number of random numbers per side of the staircase
@@ -26,12 +26,17 @@
 #define NUM_STEPS_ON 4
 #define ANIMATION_3_TIME (NUM_STEPS + NUM_STEPS_ON) * STEP_TIME
 
+// Animation 4 definitions
+#define ANIMATION_4_TIME 64
+#define ANIMATION_4_LOOPS 4
+
 
 void updateAnimation();
 
 void animation1(int index);
 void animation2(int index);
 void animation3(int index);
+void animation4(int index);
 
 // Utility functions
 uint16_t generateRandom();
