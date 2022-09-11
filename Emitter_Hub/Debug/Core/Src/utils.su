@@ -1,4 +1,3 @@
-utils.c:18:6:clearSensorHistory	16	static
-utils.c:26:9:scaleReading	32	static
-utils.c:38:6:displaySense	56	static
-utils.c:61:6:generateRGB	32	static
+../Core/Src/utils.c:21:6:clearSensorHistory	16	static
+../Core/Src/utils.c:51:6:displaySense	48	static
+../Core/Src/utils.c:75:6:generateRGB_sense	32	static

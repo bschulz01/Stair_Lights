@@ -41,6 +41,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+ RNG_HandleTypeDef hrng;
+
 TIM_HandleTypeDef htim1;
 DMA_HandleTypeDef hdma_tim1_ch2;
 
@@ -60,6 +62,7 @@ static void MX_DMA_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_USART3_UART_Init(void);
 static void MX_TIM1_Init(void);
+static void MX_RNG_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -101,6 +104,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_USART3_UART_Init();
   MX_TIM1_Init();
+  MX_RNG_Init();
   /* USER CODE BEGIN 2 */
   receiveIT();
   /* USER CODE END 2 */
@@ -110,13 +114,14 @@ int main(void)
   while (1)
   {
 	  if (cmdReady()) {
+		  abortIT();
 		  processCommand();
 		  // Update LEDs if requested
 		  if (updateLEDs()) {
-			  sendAllLEDs();
+			  //sendAllLEDs();
 			  updateWS2812();
 			  // Clear LEDs before receiving new data
-			  clearLEDs();
+			  //clearLEDs();
 		  }
 		  // Resume receiving interrupts
 		  receiveIT();
@@ -137,11 +142,11 @@ void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
-  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   /** Configure the main internal regulator output voltage
   */
   HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1);
+
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
@@ -160,6 +165,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+
   /** Initializes the CPU, AHB and APB buses clocks
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
@@ -172,15 +178,33 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
-  /** Initializes the peripherals clocks
+}
+
+/**
+  * @brief RNG Initialization Function
+  * @param None
+  * @retval None
   */
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_TIM1;
-  PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK1;
-  PeriphClkInit.Tim1ClockSelection = RCC_TIM1CLKSOURCE_PLL;
-  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+static void MX_RNG_Init(void)
+{
+
+  /* USER CODE BEGIN RNG_Init 0 */
+
+  /* USER CODE END RNG_Init 0 */
+
+  /* USER CODE BEGIN RNG_Init 1 */
+
+  /* USER CODE END RNG_Init 1 */
+  hrng.Instance = RNG;
+  hrng.Init.ClockErrorDetection = RNG_CED_ENABLE;
+  if (HAL_RNG_Init(&hrng) != HAL_OK)
   {
     Error_Handler();
   }
+  /* USER CODE BEGIN RNG_Init 2 */
+
+  /* USER CODE END RNG_Init 2 */
+
 }
 
 /**
@@ -394,6 +418,9 @@ UART_HandleTypeDef* getUFP() {
 UART_HandleTypeDef* getDFP() {
 	return &huart3;
 }
+RNG_HandleTypeDef* getRNG() {
+	return &hrng;
+}
 /* USER CODE END 4 */
 
 /**
@@ -427,5 +454,3 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

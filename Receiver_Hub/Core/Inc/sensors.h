@@ -8,7 +8,6 @@
 #ifndef INC_SENSORS_H_
 #define INC_SENSORS_H_
 
-#define SENSORS_PER_BOARD 10
 
 #define CALIBRATION_READINGS 10
 

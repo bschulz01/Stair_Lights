@@ -23,6 +23,7 @@
 #define RESET_LENGTH 50
 #define BUFFER_LENGTH (24*NUM_LEDS + RESET_LENGTH)
 #define PI 3.14159265
+#define MAX_UPDATE_TIME 100
 
 void initWS2812();
 uint8_t* getLEDBuf(uint8_t led);

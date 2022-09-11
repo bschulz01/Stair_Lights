@@ -47,7 +47,8 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-
+#define ANIMATION_BY_INDEX
+#define IS_CENTRAL_HUB
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/
@@ -72,5 +73,3 @@ RNG_HandleTypeDef* getRNG();
 #endif
 
 #endif /* __MAIN_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
