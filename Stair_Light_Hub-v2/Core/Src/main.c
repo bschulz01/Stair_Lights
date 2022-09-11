@@ -42,7 +42,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-I2C_HandleTypeDef hi2c2;
+ I2C_HandleTypeDef hi2c2;
 
 RNG_HandleTypeDef hrng;
 
@@ -109,6 +109,8 @@ int main(void)
   // Counts cycles since last recalibration
   int calibrateCount = 0;
   receiveI2C();
+  // Only update animations once every 5 sensor polls
+//  uint8_t animationCnt = 0;
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -124,13 +126,19 @@ int main(void)
 	  if (!I2CActive()) {
 		  pollSensors();
 		  // If sensors sense something, do not update LEDs
-		  if (objectSensed()) {
-			  sendCommand(getTopUART(), UPDATE_COMPLETE);
-			  sendCommand(getBotUART(), UPDATE_COMPLETE);
-			  HAL_Delay(20);
-		  } else {
-			  updateAnimation();
-			  updateLEDs();
+		  if (!objectSensed()) {
+			  // Only update animations once every 5 cycles
+//			  if (animationCnt >= 2) {
+//			  	  animationCnt = 0;
+				  updateAnimation();
+#ifdef ANIMATION_BY_INDEX
+				  sendAnimationIdx(getAnimationNum(), getAnimationIdx());
+#else
+			  u	pdateLEDs();
+#endif
+//			  } else {
+//				  animationCnt++;
+//			  }
 		  }
 		  // Recalibrate every 1000 cycles
 		  calibrateCount++;
@@ -139,6 +147,10 @@ int main(void)
 			  calibrateCount = 0;
 		  }
 	  }
+	  // Alert peripherals that this round of updates is complete
+	  sendCommand(getTopUART(), UPDATE_COMPLETE);
+	  sendCommand(getBotUART(), UPDATE_COMPLETE);
+	  //HAL_Delay(10);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -154,11 +166,11 @@ void SystemClock_Config(void)
 {
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
-  RCC_PeriphCLKInitTypeDef PeriphClkInit = {0};
 
   /** Configure the main internal regulator output voltage
   */
   HAL_PWREx_ControlVoltageScaling(PWR_REGULATOR_VOLTAGE_SCALE1);
+
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
@@ -176,6 +188,7 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+
   /** Initializes the CPU, AHB and APB buses clocks
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
@@ -186,18 +199,6 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /** Initializes the peripherals clocks
-  */
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_USART2
-                              |RCC_PERIPHCLK_I2C2|RCC_PERIPHCLK_RNG;
-  PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
-  PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
-  PeriphClkInit.I2c2ClockSelection = RCC_I2C2CLKSOURCE_PCLK1;
-  PeriphClkInit.RngClockSelection = RCC_RNGCLKSOURCE_PLL;
-  if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
     Error_Handler();
   }
@@ -231,12 +232,14 @@ static void MX_I2C2_Init(void)
   {
     Error_Handler();
   }
+
   /** Configure Analogue filter
   */
   if (HAL_I2CEx_ConfigAnalogFilter(&hi2c2, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
   {
     Error_Handler();
   }
+
   /** Configure Digital filter
   */
   if (HAL_I2CEx_ConfigDigitalFilter(&hi2c2, 0) != HAL_OK)
@@ -467,5 +470,3 @@ void assert_failed(uint8_t *file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

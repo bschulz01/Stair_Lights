@@ -7,6 +7,7 @@
 
 #include "main.h"
 #include "sensors.h"
+#include "config.h"
 
 //uint32_t adc_buf[NUM_SAMPLES];
 uint8_t complete;

@@ -1,6 +1,3 @@
-animations.c:24:6:updateAnimation	8	static
-animations.c:48:6:animation1	32	static
-animations.c:85:6:animation2	40	static
-animations.c:129:6:animation3	64	static
-animations.c:165:10:generateRandom	16	static
-animations.c:181:6:generateRGB	32	static
+../Core/Src/animations.c:28:6:updateAnimation	4	static
+../Core/Src/animations.c:40:9:getAnimationNum	4	static
+../Core/Src/animations.c:43:9:getAnimationIdx	4	static

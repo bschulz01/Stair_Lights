@@ -83,6 +83,8 @@ void clearLEDs();
 void enableSense();
 void disableSense();
 
+comm_stat_t sendAnimationIdx(uint8_t animation, uint8_t idx);
+
 uint8_t objectSensed();
 void updateLEDs();
 comm_stat_t sendLEDVals(level_t level, uint8_t startIndex, uint8_t len);

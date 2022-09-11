@@ -1,5 +1,5 @@
-i2c.c:17:9:I2CActive	4	static
-i2c.c:21:9:I2CUpdateReady	4	static
-i2c.c:25:6:receiveI2C	8	static
-i2c.c:30:6:processI2C	64	static
-i2c.c:93:6:HAL_I2C_SlaveRxCpltCallback	16	static
+../Core/Src/i2c.c:17:9:I2CActive	4	static
+../Core/Src/i2c.c:21:9:I2CUpdateReady	4	static
+../Core/Src/i2c.c:25:6:receiveI2C	8	static
+../Core/Src/i2c.c:30:6:processI2C	64	static
+../Core/Src/i2c.c:93:6:HAL_I2C_SlaveRxCpltCallback	16	static

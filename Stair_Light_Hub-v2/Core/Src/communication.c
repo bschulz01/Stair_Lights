@@ -171,7 +171,6 @@ void clearLEDs() {
 	sendCommand(getBotUART(), data);
 }
 
-
 // Send all the LED data to each board
 void updateLEDs() {
 	int startIndex = 0;
@@ -262,6 +261,45 @@ void enableSense() {
 void disableSense() {
 	sendCommand(getTopUART(), DISABLE_SENSE);
 	sendCommand(getBotUART(), DISABLE_SENSE);
+}
+
+/* Synchronize the animations
+   Format of transmission:
+    First send command that LEDs are being updated
+    Then send 2 byte sync information for the animations
+        Byte 1: animation number
+        Byte 2: index in animation
+*/
+comm_stat_t sendAnimationIdx(uint8_t animation, uint8_t idx) {
+	UART_HandleTypeDef* uartPtr;
+	// Format data
+	uint8_t data[2] = {animation, idx};
+    // track state of each transfer
+    comm_stat_t status[2] = {0, 0};
+
+    // Send data to top side
+    uartPtr = getTopUART();
+	// Send request to update leds
+	status[0] = sendCommand(uartPtr, SET_LED_VALS);
+	// If successful, send data
+	if (status[0] == COMM_OK) {
+	    HAL_UART_Transmit_DMA(uartPtr, data, sizeof(data));
+	}
+
+    // Send data to bottom side
+    uartPtr = getBotUART();
+	// Send request to update leds
+	status[1] = sendCommand(uartPtr, SET_LED_VALS);
+	// If successful, send data
+	if (status[1] == COMM_OK) {
+	    HAL_UART_Transmit_DMA(uartPtr, data, sizeof(data));
+	}
+    // return OK if both transfers were successful
+	if ((status[0] == COMM_OK) && (status[1] == COMM_OK)) {
+	    return COMM_OK;
+	} else {
+		return COMM_ERROR;
+    }
 }
 
 comm_stat_t sendCommand(UART_HandleTypeDef* huart, cmd_t cmd) {

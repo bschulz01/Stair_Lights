@@ -59,6 +59,7 @@ void Error_Handler(void);
 TIM_HandleTypeDef* getLEDTimer();
 UART_HandleTypeDef* getUFP();
 UART_HandleTypeDef* getDFP();
+RNG_HandleTypeDef* getRNG();
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
@@ -73,5 +74,3 @@ UART_HandleTypeDef* getDFP();
 #endif
 
 #endif /* __MAIN_H */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

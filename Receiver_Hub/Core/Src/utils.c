@@ -6,9 +6,12 @@
  */
 
 #include "utils.h"
+#include "config.h"
 #include "uart.h"
 #include "WS2812.h"
+#if (POSITION_TYPE == TYPE_RECEIVER)
 #include "sensors.h"
+#endif
 #include <math.h> // for the declaration of the number of sensor
 
 uint8_t min_readings[NUM_SENSORS];
@@ -22,6 +25,7 @@ void clearSensorHistory() {
 	}
 }
 
+#if (POSITION_SIDE == SIDE_RECEIVER)
 void registerReading(int sensor, uint8_t reading) {
 	// update the min and max readings for this sensor
 	if (reading < min_readings[sensor]) {
@@ -41,35 +45,34 @@ void registerReading(int sensor, uint8_t reading) {
 		sensor_activations[sensor]--;
 	}
 }
+#endif
 
 
 void displaySense() {
-	int numSensors = (1 + NUM_CHILDREN) * SENSORS_PER_BOARD;
-	int ledsPerSensor = NUM_LEDS / numSensors;
-	int extraLEDs = NUM_LEDS - numSensors * ledsPerSensor;
-	int extraInterval = numSensors / extraLEDs;
+    int extraLEDs = NUM_LEDS - NUM_SENSORS * (int) LEDS_PER_SENSOR;
+    int extraInterval = NUM_SENSORS / extraLEDs;
 	// Iterate through each sensor
-	for (int sensor = 0; sensor < numSensors; sensor++) {
+	for (int sensor = 0; sensor < NUM_SENSORS; sensor++) {
 		uint8_t r = 0;
 		uint8_t g = 0;
 		uint8_t b = 0;
 		// Determine if sensor is activated by reading the correct bit in the activation bitmap
 		if (sensor_activations[sensor]) {
-			generateRGB(sensor_activations[sensor], ON_TIME, 200, &r, &g, &b);
+			generateRGB_sense(sensor_activations[sensor], ON_TIME, 200, &r, &g, &b);
 		}
-		int startIndex = ledsPerSensor * sensor + sensor / extraInterval;
-		for (int i = 0; i < ledsPerSensor; i++) {
+		int startIndex = LEDS_PER_SENSOR * sensor + sensor / extraLEDs;
+		for (int i = 0; i < LEDS_PER_SENSOR; i++) {
 			setLED(startIndex + i, r, g, b);
 		}
 		// Control an additional LED if this sensor is mapped to an extra LED
 		if (sensor % extraInterval == (extraInterval - 1)) {
-			setLED(startIndex + ledsPerSensor, r, g, b);
+			setLED(startIndex + LEDS_PER_SENSOR, r, g, b);
 		}
 	}
 }
 
 
-void generateRGB(uint32_t index, uint32_t maxIndex, uint8_t brightness, uint8_t* r, uint8_t* g, uint8_t* b)
+void generateRGB_sense(uint32_t index, uint32_t maxIndex, uint8_t brightness, uint8_t* r, uint8_t* g, uint8_t* b)
 {
 //	float frequency = 3 * PI / maxIndex;
 //	float amplitude = brightness / 2;
