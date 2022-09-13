@@ -15,23 +15,34 @@
 #include "animations.h"
 
 int animation_len[NUM_ANIMATIONS] = {
-		NUM_LEDS*2,
-		ANIMATION_2_CYCLE*5,
-		ANIMATION_3_TIME*3,
-        ANIMATION_4_TIME*ANIMATION_4_LOOPS*2
+		NUM_LEDS,
+		ANIMATION_2_TIME,
+		ANIMATION_3_TIME,
+        NUM_LEDS / 2 + 2 * ANIMATION_4_WIDTH,
+}; 
+
+int animation_repeats[NUM_ANIMATIONS] = {
+    4,
+    ANIMATION_2_REPEATS,
+    4,
+    ANIMATION_4_LOOPS,
 };
 
 #ifdef IS_CENTRAL_HUB
 int animation_idx;
 int animation_num;
+int repeats;
 
 void updateAnimation() {
 	animation_idx++;
 	if (animation_idx > animation_len[animation_num]) {
+        repeats++;
 		animation_idx = 0;
-		animation_num++;
-		if (animation_num >= NUM_ANIMATIONS) {
-			animation_num = 0;
+        if (repeats > animation_repeats[animation_num]) {
+		    animation_num++;
+		    if (animation_num >= NUM_ANIMATIONS) {
+		    	animation_num = 0;
+            }
         }
     }
 }
@@ -68,7 +79,7 @@ void updateAnimation(uint8_t num, uint8_t idx) {
     case 0: animation1(idx); break;
     case 1: animation2(idx); break;
     case 2: animation3(idx); break;
-    case 3: animation2(idx); break;	// FIXME: make animation 4 work
+    case 3: animation4(idx); break;	// FIXME: make animation 4 work
     default: break; 
    }
 }
@@ -160,7 +171,6 @@ void animation2(uint8_t idx) {
     clearLEDs();
 	// Generate new random numbers if starting the animation
 	if (numOn == 0) {
-		clearLEDs();
 		for (int i = 0; i < NUM_RANDOM_NUMS; i++) {
 			randoms[i] = generateRandom() % (2*NUM_LEDS);
 		}
@@ -223,6 +233,50 @@ void animation3(uint8_t index) {
 //	}
 }
 
+// Moving rainbow line
+void animation4(uint8_t index) { 
+    // Start in middle and move outwards
+    // Subtract width so it starts at nothing
+    int16_t ledIdx = index % (NUM_LEDS/2 + 2*ANIMATION_4_WIDTH) - ANIMATION_4_WIDTH;
+    // Generate symmetric colors
+    #if (POSITION_SIDE == SIDE_EMITTER)
+    int16_t colorIndex = ANIMATION_4_OFFSET1;
+    #else
+    int16_t colorIndex = ANIMATION_4_OFFSET2;
+    #endif
+    colorIndex += ledIdx;
+    // Map to rgb values
+    uint8_t r = 0;
+    uint8_t g = 0;
+    uint8_t b = 0;
+    generateRGB_fluid(colorIndex, ANIMATION_4_RANGE, &r, &g, &b);
+    // Set LEDs going outward
+    clearLEDs();
+    for (int i = 0; i < ANIMATION_4_WIDTH; i++) {
+        if ((i + ledIdx > 0) && (i + ledIdx < NUM_LEDS / 2)) {
+            setLED(NUM_LEDS / 2 + i + ledIdx, r, g, b);
+            setLED(NUM_LEDS / 2 - i - ledIdx, r, g, b);
+        }
+    }
+
+
+// OLD CODE
+//    // Map to color index
+//    int16_t sideIndex;
+//    #if (POSITION_SIDE == SIDE_EMITTER) 
+//    sideIndex = ANIMATION_4_START_1 + index;
+//    #else
+//	sideIndex = ANIMATION_4_START_2 + index;
+//    #endif
+//    // constrain to valid range
+//    sideIndex = sideIndex % ANIMATION_4_TIME;
+//    // Turn on LEDs
+////    clearLEDs();
+//    for (int i = 0; i < NUM_LEDS; i += 2) {
+//        setLED(i, r, g, b);
+//    }
+}
+/*
 void animation4(uint8_t index) {
     int step = index % (ANIMATION_4_TIME * 2);
     int base1[3] = {48, 176, 240};
@@ -298,6 +352,7 @@ void animation4(uint8_t index) {
         #endif
     }
 }
+*/
 
 // UTILITY FUNCTIONS
 
@@ -362,6 +417,28 @@ void generateRGB(uint8_t num, uint8_t* r, uint8_t* g, uint8_t* b) {
 		*b = 0;
 		break;
 	}
+}
+
+// Generate an rgb value based on a quadratic fade
+void generateRGB_fluid(int16_t idx, int16_t colorRange, uint8_t* r, uint8_t* g, uint8_t* b) {
+    // Constrain to valid range
+    idx = idx % (3 * colorRange);
+    float normalizedIdx = (float) idx / (float) colorRange;
+    // R and G
+    if (idx < colorRange) {
+        *r = MAX_AMPLITUDE * (normalizedIdx - 1) * (normalizedIdx - 1);
+        *g = MAX_AMPLITUDE * (normalizedIdx    ) * (normalizedIdx    );
+    }
+    // G and B
+    else if (idx < 2 * colorRange) {
+        *g = MAX_AMPLITUDE * (normalizedIdx - 2) * (normalizedIdx - 2);
+        *b = MAX_AMPLITUDE * (normalizedIdx - 1) * (normalizedIdx - 1);
+    }
+    // R and B
+    else if (idx < 3 * colorRange) {
+        *r = MAX_AMPLITUDE * (normalizedIdx - 2) * (normalizedIdx - 2);
+        *b = MAX_AMPLITUDE * (normalizedIdx - 3) * (normalizedIdx - 3);
+    }
 }
 
 #endif

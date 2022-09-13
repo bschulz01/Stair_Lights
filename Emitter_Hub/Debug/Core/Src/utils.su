@@ -1,3 +1,0 @@
-../Core/Src/utils.c:21:6:clearSensorHistory	16	static
-../Core/Src/utils.c:51:6:displaySense	48	static
-../Core/Src/utils.c:75:6:generateRGB_sense	32	static

@@ -1,3 +1,0 @@
-../Core/Src/animations.c:28:6:updateAnimation	4	static
-../Core/Src/animations.c:40:9:getAnimationNum	4	static
-../Core/Src/animations.c:43:9:getAnimationIdx	4	static

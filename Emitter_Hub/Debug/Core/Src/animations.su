@@ -1,7 +1,0 @@
-../Core/Src/animations.c:60:6:updateAnimation	16	static
-../Core/Src/animations.c:77:6:animation1	40	static
-../Core/Src/animations.c:146:6:animation2	56	static
-../Core/Src/animations.c:180:6:animation3	48	static
-../Core/Src/animations.c:220:6:animation4	80	static
-../Core/Src/animations.c:299:10:generateRandom	16	static
-../Core/Src/animations.c:315:6:generateRGB	32	static

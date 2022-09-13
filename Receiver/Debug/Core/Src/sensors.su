@@ -1,5 +1,0 @@
-../Core/Src/sensors.c:33:9:mapSensor	16	static
-../Core/Src/sensors.c:55:11:getNewReadings	24	static
-../Core/Src/sensors.c:65:11:getLastReadings	8	static
-../Core/Src/sensors.c:69:10:readSensor	16	static
-../Core/Src/sensors.c:74:10:readADC	48	static
