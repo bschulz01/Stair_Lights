@@ -15,10 +15,11 @@
 #include "animations.h"
 
 int animation_len[NUM_ANIMATIONS] = {
-		NUM_LEDS,
+		NUM_LEDS * 2 / 3,
 		ANIMATION_2_TIME,
 		ANIMATION_3_TIME,
         NUM_LEDS / 2 + 2 * ANIMATION_4_WIDTH,
+        ANIMATION_5_TIME,
 }; 
 
 int animation_repeats[NUM_ANIMATIONS] = {
@@ -26,6 +27,7 @@ int animation_repeats[NUM_ANIMATIONS] = {
     ANIMATION_2_REPEATS,
     4,
     ANIMATION_4_LOOPS,
+    ANIMATION_5_LOOPS,
 };
 
 #ifdef IS_CENTRAL_HUB
@@ -40,6 +42,7 @@ void updateAnimation() {
 		animation_idx = 0;
         if (repeats > animation_repeats[animation_num]) {
 		    animation_num++;
+            repeats = 0;
 		    if (animation_num >= NUM_ANIMATIONS) {
 		    	animation_num = 0;
             }
@@ -60,10 +63,10 @@ uint8_t getAnimationIdx() {
 // Random numbers to be used in the animations
 uint16_t randoms[NUM_RANDOM_NUMS];
 
-uint8_t anim4_color1[3];
-uint8_t anim4_color2[3];
+uint8_t anim5_color1[3];
+uint8_t anim5_color2[3];
 
-int anim4_prevIdx = 999;
+int anim5_prevIdx = 999;
 uint8_t prevAnim = 0;
 
 // TODO: reset steps at each reset
@@ -71,15 +74,16 @@ uint8_t prevAnim = 0;
 
 void updateAnimation(uint8_t num, uint8_t idx) {
     // Clear LEDs if switching to a new animation
-    if (prevAnim != num) {
+    if (num == (prevAnim + 1 % NUM_ANIMATIONS)) {
         clearLEDs();
+        prevAnim = num;
     }
-    prevAnim = num;
    switch(num) {
     case 0: animation1(idx); break;
     case 1: animation2(idx); break;
     case 2: animation3(idx); break;
-    case 3: animation4(idx); break;	// FIXME: make animation 4 work
+    case 3: animation4(idx); break;
+    case 4: animation5(idx); break;
     default: break; 
    }
 }
@@ -106,7 +110,7 @@ void animation1(uint8_t index) {
         rgb[2][0] = 100;
         rgb[2][2] = 100;
     #else
-        rgb[0][3] = 250;
+        rgb[0][2] = 200;
         rgb[1][1] = 100;
         rgb[1][2] = 100;
         rgb[2][1] = 100;
@@ -172,7 +176,7 @@ void animation2(uint8_t idx) {
 	// Generate new random numbers if starting the animation
 	if (numOn == 0) {
 		for (int i = 0; i < NUM_RANDOM_NUMS; i++) {
-			randoms[i] = generateRandom() % (2*NUM_LEDS);
+			randoms[i] = generateRandom() % NUM_LEDS;
 		}
 	}
 	// Iterate through each group of LEDs
@@ -200,6 +204,7 @@ void animation3(uint8_t index) {
 	uint8_t b = 0;
 	// Update when a new step is reached
 //	if (index % STEP_TIME == 0) {       // commented out because indices may be skipped
+//	clearLEDs();
 		// Turn on new step
 		int startIndex = step * (STEP_LEN+STEP_GAP);
         uint8_t side = step % 2 == 0 ? SIDE_EMITTER : SIDE_RECEIVER;
@@ -258,27 +263,31 @@ void animation4(uint8_t index) {
             setLED(NUM_LEDS / 2 - i - ledIdx, r, g, b);
         }
     }
-
-
-// OLD CODE
-//    // Map to color index
-//    int16_t sideIndex;
-//    #if (POSITION_SIDE == SIDE_EMITTER) 
-//    sideIndex = ANIMATION_4_START_1 + index;
-//    #else
-//	sideIndex = ANIMATION_4_START_2 + index;
-//    #endif
-//    // constrain to valid range
-//    sideIndex = sideIndex % ANIMATION_4_TIME;
-//    // Turn on LEDs
-////    clearLEDs();
-//    for (int i = 0; i < NUM_LEDS; i += 2) {
-//        setLED(i, r, g, b);
-//    }
 }
+  
+void animation5(uint8_t index) {
+    // Map to color index
+    int16_t sideIndex = index;
+    #if (POSITION_SIDE == SIDE_EMITTER) 
+    sideIndex += ANIMATION_5_START_1;
+    #else
+	sideIndex += ANIMATION_5_START_2;
+    #endif
+    // constrain to valid range
+    sideIndex = sideIndex % ANIMATION_5_TIME;
+    // Map to rgb values
+    uint8_t r = 0;
+    uint8_t g = 0;
+    uint8_t b = 0;
+    generateRGB_fluid(sideIndex, ANIMATION_5_TIME/3, &r, &g, &b);
+    // Turn on LEDs
+    clearLEDs();
+    for (int i = 0; i < NUM_LEDS; i += 2) {
+        setLED(i, r, g, b);
+    }
+// OLD CODE
 /*
-void animation4(uint8_t index) {
-    int step = index % (ANIMATION_4_TIME * 2);
+    int step = index % (ANIMATION_5_TIME * 2);
     int base1[3] = {48, 176, 240};
     int base2[3] = {255, 0, 0};
     int c1;
@@ -288,18 +297,18 @@ void animation4(uint8_t index) {
 
     // reset colors when index is reset to lower value
     // This occurs when it wraps around
-    if (index < anim4_prevIdx) {
+    if (index < anim5_prevIdx) {
         for (int i = 0; i < 3; i++) {
-            anim4_color1[i] = base1[i];
-            anim4_color2[i] = base2[i];
+            anim5_color1[i] = base1[i];
+            anim5_color2[i] = base2[i];
         }
     }
     else {
         // calculate the difference between the two colors
         for (int i = 0; i < 3; i++) {
-            c1 = anim4_color1[i];
-            c2 = anim4_color2[i];
-            if (step < ANIMATION_4_TIME) {
+            c1 = anim5_color1[i];
+            c2 = anim5_color2[i];
+            if (step < ANIMATION_5_TIME) {
                 b1 = base1[i];
                 b2 = base2[i];
             }
@@ -336,23 +345,24 @@ void animation4(uint8_t index) {
                 c2 = b1;
             }
 
-            anim4_color1[i] = c1;
-            anim4_color2[i] = c2;
+            anim5_color1[i] = c1;
+            anim5_color2[i] = c2;
         }
     }
 
-    anim4_prevIdx = index;
+    anim5_prevIdx = index;
     clearLEDs();
 
     for (int i = 0; i < NUM_LEDS; i += 2) {
         #if (POSITION_SIDE == SIDE_EMITTER)
-        setLED(i, anim4_color1[0], anim4_color1[1], anim4_color1[2]);
+        setLED(i, anim5_color1[0], anim5_color1[1], anim5_color1[2]);
         #else
-        setLED(i, anim4_color2[0], anim4_color2[1], anim4_color2[2]);
+        setLED(i, anim5_color2[0], anim5_color2[1], anim5_color2[2]);
         #endif
     }
-}
 */
+}
+  
 
 // UTILITY FUNCTIONS
 

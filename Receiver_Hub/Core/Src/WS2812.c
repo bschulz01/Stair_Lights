@@ -8,10 +8,11 @@
 
 #include "main.h"
 #include "WS2812.h"
-#include <math.h>
+#include <string.h>
 
-// RECEIVER VERSION
-// Values are the lower 4 bits of each entry
+// EMITTER VERSION
+// Values are the upper 4 bits of each entry
+
 
 uint8_t LED_data[NUM_LEDS*3];
 uint16_t PWM_data[BUFFER_LENGTH];
@@ -37,15 +38,21 @@ void setLED(uint32_t LED, uint8_t Red, uint8_t Green, uint8_t Blue)
 		LED_data[LED*3+1] = Red;
 		LED_data[LED*3+2] = Blue;
 	}
+//	if (LED < NUM_LEDS) {
+//		LED_Data[LED][0] = Green;
+//		LED_Data[LED][1] = Red;
+//		LED_Data[LED][2] = Blue;
+//	}
 }
 
 
 void clearLEDs()
 {
-	for (int index = 0; index < NUM_LEDS; index++)
-	{
-		setLED(index, 0, 0, 0);
-	}
+//	for (int index = 0; index < NUM_LEDS; index++)
+//	{
+//		setLED(index, 0, 0, 0);
+//	}
+	memset(LED_data, 0, sizeof(LED_data));
 }
 
 //// Sets the brightness on a scale from 0-45
@@ -70,23 +77,24 @@ void clearLEDs()
 void updateWS2812()
 {
 	uint32_t color;
-	uint8_t mask = 0b00001111;
 
 	uint16_t idx = 0;
+	//uint8_t mask = 0b11110000;
 	// Load buffer with LED data
 	for (uint32_t led = 0; led < NUM_LEDS; led++)
 	{
 		// Generate bits to describe color
-		// Shift an extra 4 bits since the relevant bits are the lower 4 bits
-		color = ((LED_data[led*3] & mask) << 20) |
-				((LED_data[led*3+1] & mask) << 12) |
-				((LED_data[led*3+2] & mask) << 4);
+		//color = ((LED_data[led*3] & mask) << 16) |
+		//		((LED_data[led*3+1] & mask) << 8) |
+		//		(LED_data[led*3+2] & mask);
+		color = ((LED_data[led*3]) << 16) |
+				((LED_data[led*3+1]) << 8) |
+				((LED_data[led*3+2]));
 
 		// Set the buffer for this LED
 		// Send MSB to LSB
 		for (int16_t bit = 23; bit >= 0; bit--)
 		{
-			//uint32_t idx = 24 * led + bit;
 			if (color & (1<<bit))
 			{
 				PWM_data[idx] = HIGH_TIME; // High bit
@@ -107,12 +115,17 @@ void updateWS2812()
 	}
 
 	// Begin transfer of data
+	dataSentFlag = 0;
 	HAL_TIM_PWM_Start_DMA(getLEDTimer(), TIM_CHANNEL, (uint32_t *)PWM_data, idx);
 
-	while(!dataSentFlag)
-		continue;
-
-	dataSentFlag = 0;
+//	int counter = 0;
+	while(!dataSentFlag) {
+//		if (counter > MAX_UPDATE_TIME) {
+//			HAL_TIM_PWM_Stop_DMA(getLEDTimer(), TIM_CHANNEL);
+//			dataSentFlag = 1;
+//		}
+//		counter++;
+	}
 }
 
 

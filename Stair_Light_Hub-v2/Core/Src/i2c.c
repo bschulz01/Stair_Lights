@@ -12,7 +12,7 @@
 uint8_t cmd_buf;
 uint8_t cmd_ready;
 
-uint8_t active;
+uint8_t active = 0;
 
 uint8_t I2CActive() {
 	return active;

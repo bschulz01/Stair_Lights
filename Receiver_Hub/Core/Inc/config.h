@@ -18,7 +18,7 @@
 
 // Set definition of this board instance
 #define POSITION_SIDE   SIDE_RECEIVER
-#define POSITION_LEVEL  LEVEL_TOP
+#define POSITION_LEVEL  LEVEL_BOTTOM
 #define POSITION_TYPE   TYPE_HUB
 
 // Definitions of board position for sensing

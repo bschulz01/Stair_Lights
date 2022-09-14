@@ -13,7 +13,7 @@
 #ifndef NUM_LEDS
 #define NUM_LEDS            128
 #endif
-#define NUM_ANIMATIONS      4
+#define NUM_ANIMATIONS      5
 // Number of colors for the generateRGB function
 #define NUM_COLORS          7
 // Number of random numbers per side of the staircase
@@ -41,7 +41,11 @@
 #define ANIMATION_4_WIDTH   10
 #define ANIMATION_4_OFFSET1 0
 #define ANIMATION_4_OFFSET2 ANIMATION_4_RANGE
-//#define ANIMATION_4_START_2 160
+
+#define ANIMATION_5_TIME    180
+#define ANIMATION_5_LOOPS   4
+#define ANIMATION_5_START_1 0
+#define ANIMATION_5_START_2 ANIMATION_5_TIME / 3
 
 #ifdef IS_CENTRAL_HUB
 void updateAnimation();
@@ -53,6 +57,7 @@ void animation1(uint8_t index);
 void animation2(uint8_t index);
 void animation3(uint8_t index);
 void animation4(uint8_t index);
+void animation5(uint8_t index);
 #endif
 
 // Utility functions

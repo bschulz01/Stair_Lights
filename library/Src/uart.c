@@ -338,7 +338,7 @@ comm_stat_t sendLEDInfo(uint8_t animation, uint8_t idx) {
 	comm_stat_t status = sendCommand(getDFP(), SET_LED_VALS);
 	// If successful, send data
 	if (status == COMM_OK) {
-	    HAL_UART_Transmit_DMA(getDFP(), data, sizeof(data));
+	    HAL_UART_Transmit(getDFP(), data, sizeof(data), LED_UPDATE_TIMEOUT);
 	}
     return status;
 }

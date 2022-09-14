@@ -108,9 +108,11 @@ int main(void)
   /* USER CODE BEGIN 2 */
   // Counts cycles since last recalibration
   int calibrateCount = 0;
-  receiveI2C();
+  //receiveI2C();
   // Only update animations once every 5 sensor polls
 //  uint8_t animationCnt = 0;
+  // Calibrate sensors on startup
+  recalibrate();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -134,7 +136,7 @@ int main(void)
 #ifdef ANIMATION_BY_INDEX
 				  sendAnimationIdx(getAnimationNum(), getAnimationIdx());
 #else
-			  u	pdateLEDs();
+			  updateLEDs();
 #endif
 //			  } else {
 //				  animationCnt++;
