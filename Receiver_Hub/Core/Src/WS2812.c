@@ -8,6 +8,7 @@
 
 #include "main.h"
 #include "WS2812.h"
+#include "config.h"
 #include <string.h>
 
 // EMITTER VERSION
@@ -38,11 +39,6 @@ void setLED(uint32_t LED, uint8_t Red, uint8_t Green, uint8_t Blue)
 		LED_data[LED*3+1] = Red;
 		LED_data[LED*3+2] = Blue;
 	}
-//	if (LED < NUM_LEDS) {
-//		LED_Data[LED][0] = Green;
-//		LED_Data[LED][1] = Red;
-//		LED_Data[LED][2] = Blue;
-//	}
 }
 
 

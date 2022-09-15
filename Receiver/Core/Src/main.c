@@ -126,7 +126,7 @@ int main(void)
 	  }
 	  // If the last board, initiate sensor updates
 #if LAST_BOARD
-	  HAL_Delay(20);
+	  HAL_Delay(50);
 	  initiateSensorUpdate();
 	  if (ledState) {
 		  HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);

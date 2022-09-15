@@ -436,18 +436,18 @@ void generateRGB_fluid(int16_t idx, int16_t colorRange, uint8_t* r, uint8_t* g, 
     float normalizedIdx = (float) idx / (float) colorRange;
     // R and G
     if (idx < colorRange) {
-        *r = MAX_AMPLITUDE * (normalizedIdx - 1) * (normalizedIdx - 1);
-        *g = MAX_AMPLITUDE * (normalizedIdx    ) * (normalizedIdx    );
+        *r = - MAX_AMPLITUDE * (normalizedIdx - 1);// * (normalizedIdx - 1);
+        *g =   MAX_AMPLITUDE * (normalizedIdx    );// * (normalizedIdx    );
     }
     // G and B
     else if (idx < 2 * colorRange) {
-        *g = MAX_AMPLITUDE * (normalizedIdx - 2) * (normalizedIdx - 2);
-        *b = MAX_AMPLITUDE * (normalizedIdx - 1) * (normalizedIdx - 1);
+        *g = - MAX_AMPLITUDE * (normalizedIdx - 2);// * (normalizedIdx - 2);
+        *b =   MAX_AMPLITUDE * (normalizedIdx - 1);// * (normalizedIdx - 1);
     }
     // R and B
     else if (idx < 3 * colorRange) {
-        *r = MAX_AMPLITUDE * (normalizedIdx - 2) * (normalizedIdx - 2);
-        *b = MAX_AMPLITUDE * (normalizedIdx - 3) * (normalizedIdx - 3);
+        *r =   MAX_AMPLITUDE * (normalizedIdx - 2);// * (normalizedIdx - 2);
+        *b = - MAX_AMPLITUDE * (normalizedIdx - 3);// * (normalizedIdx - 3);
     }
 }
 

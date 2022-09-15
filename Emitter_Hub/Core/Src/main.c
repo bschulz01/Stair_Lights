@@ -41,7 +41,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
- RNG_HandleTypeDef hrng;
+RNG_HandleTypeDef hrng;
 
 TIM_HandleTypeDef htim1;
 DMA_HandleTypeDef hdma_tim1_ch2;
@@ -118,10 +118,7 @@ int main(void)
 		  processCommand();
 		  // Update LEDs if requested
 		  if (updateLEDs()) {
-			  //sendAllLEDs();
 			  updateWS2812();
-			  // Clear LEDs before receiving new data
-			  //clearLEDs();
 		  }
 		  // Resume receiving interrupts
 		  receiveIT();

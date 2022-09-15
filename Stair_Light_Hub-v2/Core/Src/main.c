@@ -110,7 +110,6 @@ int main(void)
   int calibrateCount = 0;
   //receiveI2C();
   // Only update animations once every 5 sensor polls
-//  uint8_t animationCnt = 0;
   // Calibrate sensors on startup
   recalibrate();
   /* USER CODE END 2 */
@@ -129,18 +128,9 @@ int main(void)
 		  pollSensors();
 		  // If sensors sense something, do not update LEDs
 		  if (!objectSensed()) {
-			  // Only update animations once every 5 cycles
-//			  if (animationCnt >= 2) {
-//			  	  animationCnt = 0;
-				  updateAnimation();
-#ifdef ANIMATION_BY_INDEX
-				  sendAnimationIdx(getAnimationNum(), getAnimationIdx());
-#else
-			  updateLEDs();
-#endif
-//			  } else {
-//				  animationCnt++;
-//			  }
+            // TODO: clean up all the code
+		    updateAnimation();
+		    sendAnimationIdx(getAnimationNum(), getAnimationIdx());
 		  }
 		  // Recalibrate every 1000 cycles
 		  calibrateCount++;
@@ -150,9 +140,9 @@ int main(void)
 		  }
 	  }
 	  // Alert peripherals that this round of updates is complete
-	  sendCommand(getTopUART(), UPDATE_COMPLETE);
-	  sendCommand(getBotUART(), UPDATE_COMPLETE);
-	  //HAL_Delay(10);
+	  //sendCommand(getTopUART(), UPDATE_COMPLETE);
+	  //sendCommand(getBotUART(), UPDATE_COMPLETE);
+	  HAL_Delay(2);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

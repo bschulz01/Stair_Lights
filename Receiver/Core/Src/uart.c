@@ -24,9 +24,7 @@ uint8_t cmd_ready;
 // Stores command received from hub
 uint8_t cmd;
 // Receier hub gets commmand from emitter hub and sensors
-#if (POSITION_SIDE == SIDE_RECEIVER)
 uint8_t dfp_cmd;
-#endif
 // Stores ack from receiver
 uint8_t rec;
 
@@ -53,10 +51,7 @@ uint8_t led_state = 0;
 
 void abortIT() {
 	HAL_UART_Abort_IT(getUFP());
-// Only receiver side receives interrupts from downstream boards
-#if (POSITION_SIDE == SIDE_RECEIVER)
 	HAL_UART_Abort_IT(getDFP());
-#endif
 }
 
 // initialize polling for data from UFP
@@ -65,12 +60,9 @@ void receiveIT() {
 	cmd = 0;
 	abortIT();
 	HAL_UART_Receive_IT(getUFP(), &cmd, 1);
-// Only receiver side receives interrupts from downstream boards
 // Downstream commands read new sensor values
-#if (POSITION_SIDE == SIDE_RECEIVER)
 	dfp_cmd = 0;
 	HAL_UART_Receive_IT(getDFP(), &dfp_cmd, 1);
-#endif
 }
 
 void toggleLED() {
@@ -153,14 +145,13 @@ uint8_t getSensorVal(uint8_t sensor) {
 
 /* Command overview
     UPDATE_COMPLETE: LED update is complete
-        Emitter hub now gets sensor data from receiver hub
-        Hubs process sensor readings to determine if they should light up
+        * Now unused
     SEND_SENSOR_DATA: Pass along most recent data from sensors
         Emitter hub: returns if an object was sensed or not
         Receiver hub: return all sensor readings 
         * Only for hubs
     SENSOR_UPDATE: Read more data from sensors and pass upstream
-        * Only for receivers
+        For hubs, also display LEDs
     TODO: make these situations reality
 */
 
@@ -169,33 +160,27 @@ HAL_StatusTypeDef processCommand() {
 	HAL_StatusTypeDef ret = HAL_OK;
 	if (cmd == UPDATE_COMPLETE) {
 		sendACK(getUFP());
-        #if (POSITION_SIDE == SIDE_EMITTER) 
-		// Once update is complete, get sensor values from receiver hub
-		ret = HAL_ERROR;
-        comm_stat_t dfp_ret = sendCommand(getDFP(), SEND_SENSOR_DATA);
-        if (dfp_ret == COMM_OK) {
-			ret = HAL_UART_Receive(getDFP(), sensor_activations, sizeof(sensor_activations), SENSOR_UPDATE_TIMEOUT);
-		    // Update sense state so it is ready to return to hub when requested
-		    // Sensors are activated if any sensor (individual bit) indicates that a sensor was activated
-		    sense_state = OBJECT_NOT_SENSED;
-		    for (int i = 0; i < NUM_SENSORS; i++) {
-		    	if (sensor_activations[i] > 0) {
-		    		sense_state = OBJECT_SENSED;
-		    	}
-		    }
-        }
+        #if (POSITION_SIDE == SIDE_EMITTER)
+		//// Once update is complete, get sensor values from receiver hub
+		//ret = HAL_ERROR;
+        //comm_stat_t dfp_ret = sendCommand(getDFP(), SEND_SENSOR_DATA);
+        //if (dfp_ret == COMM_OK) {
+		//	ret = HAL_UART_Receive(getDFP(), sensor_activations, sizeof(sensor_activations), SENSOR_UPDATE_TIMEOUT);
+		//    // Update sense state so it is ready to return to hub when requested
+		//    // Sensors are activated if any sensor (individual bit) indicates that a sensor was activated
+		//    sense_state = OBJECT_NOT_SENSED;
+		//    for (int i = 0; i < NUM_SENSORS; i++) {
+		//    	if (sensor_activations[i] > 0) {
+		//    		sense_state = OBJECT_SENSED;
+		//    	}
+		//    }
+        //}
         // Tell receiver hub update is complete
         sendCommand(getDFP(), UPDATE_COMPLETE);
         #endif
-        // Hubs then display sense state
-        #if (POSITION_TYPE == TYPE_HUB)
-		// Update the LED strips if an object was sensed
-		if (display_sense && sense_state == OBJECT_SENSED) {
-			clearLEDs();
-			displaySense();
-		    update_leds = 1;
-		}
-        #endif
+        //// Hubs then display sense state
+        //#if (POSITION_TYPE == TYPE_HUB)
+        //#endif
 		//// Send LED values to receiver hub when update is complete
         //#if (POSITION_SIDE == SIDE_EMITTER) 
         //sendLEDData();
@@ -214,16 +199,21 @@ HAL_StatusTypeDef processCommand() {
 		    // Send last known sense state back to hub
 		    ret = HAL_UART_Transmit(getUFP(), &sense_state, sizeof(sense_state), SEND_TIMEOUT);
         #endif
-#if (POSITION_SIDE == SIDE_RECEIVER)
 	} else if (dfp_cmd == SENSOR_UPDATE) {
 		// Send ACK to dfp
 		sendACK(getDFP());
+        // Receiver side gets new sensor data
+        #if (POSITION_SIDE == SIDE_RECEIVER)
 		// Get updated sensor values from dfp
 		ret = HAL_UART_Receive(getDFP(), sensor_buf, sizeof(sensor_buf), SENSOR_UPDATE_TIMEOUT);
 		// Get new readings
 		getNewReadings();
 		// Scale all the sensor readings
 		insertReadingsToBuf();
+        #else
+        // Emitter side only receives activations
+	    HAL_UART_Receive(getDFP(), sensor_activations, sizeof(sensor_activations), SENSOR_UPDATE_TIMEOUT);
+        #endif
 		// Process sensor values to determine if an object was sensed
         // Only the hub determines sense state
         #if (POSITION_TYPE == TYPE_HUB)
@@ -233,14 +223,24 @@ HAL_StatusTypeDef processCommand() {
 				sense_state = OBJECT_SENSED;
 			}
 		}
-        #else // Non-hub sensor boards pass command to upstream board
-		// Send update to downstream board
-		comm_stat_t status = sendCommand(getUFP(), SENSOR_UPDATE);
-		if (status == COMM_OK) {
-			HAL_UART_Transmit(getUFP(), sensor_buf, sizeof(sensor_buf), SENSOR_UPDATE_TIMEOUT);
+		// Update the LED strips if an object was sensed
+		if (display_sense && sense_state == OBJECT_SENSED) {
+			clearLEDs();
+			displaySense();
+		    update_leds = 1;
 		}
         #endif
-#endif
+		// Send update to downstream board
+        #if (POSITION_SIDE == SIDE_RECEIVER)
+		comm_stat_t status = sendCommand(getUFP(), SENSOR_UPDATE);
+		if (status == COMM_OK) {
+        #if (POSITION_TYPE == TYPE_HUB)
+			HAL_UART_Transmit(getUFP(), sensor_activations, sizeof(sensor_buf), SENSOR_UPDATE_TIMEOUT);
+        #else
+			HAL_UART_Transmit(getUFP(), sensor_buf, sizeof(sensor_buf), SENSOR_UPDATE_TIMEOUT);
+        #endif
+		}
+        #endif
 #if (POSITION_TYPE == TYPE_HUB)         // Hub commands for sensors
 	} else if (cmd == RECALIBRATE) {
 		sendACK(getUFP());
