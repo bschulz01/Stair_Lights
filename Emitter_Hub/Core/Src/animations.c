@@ -96,13 +96,18 @@ void updateAnimation(uint8_t num, uint8_t idx) {
 
 // Moving lines
 void animation1(uint8_t index) {
-	int num = index % (NUM_LEDS*2/3);
+	int num = index % (NUM_LEDS*2/3 - 1);
+    clearLEDs();
     // There are three groups of colors
     // 1st dimension = group
     // 2nd dimension = r, g, or b (respectively)
     uint8_t rgb[3][3] = {{0, 0, 0},{0, 0, 0},{0, 0, 0}};
     // Set colors for each staircase segment
 #if (POSITION_LEVEL == LEVEL_TOP)
+    // Shift num to match going down when lights go off
+	if (num > NUM_LEDS/3) {
+		num = NUM_LEDS/3 - num % (NUM_LEDS/3);
+    }
     #if (POSITION_SIDE  == SIDE_EMITTER)
         rgb[0][0] = 100;
         rgb[1][0] = 100;
@@ -115,22 +120,17 @@ void animation1(uint8_t index) {
         rgb[1][2] = 100;
         rgb[2][1] = 100;
     #endif
-	// Turn on going up
-	if (num < NUM_LEDS/3) {
+    for (int i = 0; i < num; i++) {
         // Set colors for 3 groups
-        setLED(num                 , rgb[0][0], rgb[0][1], rgb[0][2]);
-        setLED(num + NUM_LEDS * 1/3, rgb[1][0], rgb[1][1], rgb[1][2]);
-        setLED(num + NUM_LEDS * 2/3, rgb[2][0], rgb[2][1], rgb[2][2]);
-	}
-	else {
-		// Turn off moving down
-        // Shift num to match going down
-		num = NUM_LEDS/3 - index % (NUM_LEDS/3);
-        setLED(num                 , 0, 0, 0);
-        setLED(num + NUM_LEDS * 1/3, 0, 0, 0);
-        setLED(num + NUM_LEDS * 2/3, 0, 0, 0);
+        setLED(i                 , rgb[0][0], rgb[0][1], rgb[0][2]);
+        setLED(i + NUM_LEDS * 1/3, rgb[1][0], rgb[1][1], rgb[1][2]);
+        setLED(i + NUM_LEDS * 2/3, rgb[2][0], rgb[2][1], rgb[2][2]);
 	}
 #else
+    // Shift num to match going down when lights go off
+	if (num > NUM_LEDS/3) {
+		num = NUM_LEDS/3 - num % (NUM_LEDS/3);
+    }
     #if (POSITION_SIDE  == SIDE_EMITTER)
         rgb[0][0] = 100;
         rgb[0][1] = 100;
@@ -144,22 +144,12 @@ void animation1(uint8_t index) {
         rgb[1][2] = 100;
         rgb[2][2] = 100;
     #endif
-    // Invert direction so lights go bottom to top
-	// Turn on going up
-	if (num < NUM_LEDS/3) {
+    for (int i = 0; i < num; i++) {
         // Set colors for 3 groups
-        setLED(NUM_LEDS * 1/3 - num, rgb[1][0], rgb[1][1], rgb[1][2]);
-        setLED(NUM_LEDS * 2/3 - num, rgb[2][0], rgb[2][1], rgb[2][2]);
-        setLED(NUM_LEDS       - num, rgb[0][0], rgb[0][1], rgb[0][2]);
-	}
-	else {
-		// Turn off moving down
-        // Shift num to match going down
-		num = NUM_LEDS/3 - index % (NUM_LEDS/3);
-        setLED(NUM_LEDS * 1/3 - num, 0, 0, 0);
-        setLED(NUM_LEDS * 2/3 - num, 0, 0, 0);
-        setLED(NUM_LEDS       - num, 0, 0, 0);
-	}
+        setLED(NUM_LEDS * 1/3 - i, rgb[1][0], rgb[1][1], rgb[1][2]);
+        setLED(NUM_LEDS * 2/3 - i, rgb[2][0], rgb[2][1], rgb[2][2]);
+        setLED(NUM_LEDS       - i, rgb[0][0], rgb[0][1], rgb[0][2]);
+    }
 #endif
 }
 

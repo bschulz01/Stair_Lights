@@ -21,12 +21,14 @@
 // Max amplitude for the fluid rgb generation
 #define MAX_AMPLITUDE       100
 
+// Animation 2 is random moving dots expanding outwards
 #define ANIMATION_2_CYCLE   30
 #define ANIMATION_2_DELAY   3
 #define ANIMATION_2_TIME    ANIMATION_2_CYCLE * ANIMATION_2_DELAY
-#define ANIMATION_2_REPEATS 8
+#define ANIMATION_2_REPEATS 12
 
 // Animation 3 definitions
+// "footstops" moving up the staircase
 #define STEP_TIME           20
 #define STEP_LEN            10
 #define STEP_GAP            6
@@ -35,6 +37,7 @@
 #define ANIMATION_3_TIME    STEP_TIME * (NUM_STEPS + NUM_STEPS_ON)
 
 // Animation 4 definitions
+// RGB waves from center of each flight
 #define ANIMATION_4_LOOPS   15
 #define ANIMATION_4_RANGE   30
 #define ANIMATION_4_DELAY   3
@@ -42,6 +45,8 @@
 #define ANIMATION_4_OFFSET1 0
 #define ANIMATION_4_OFFSET2 ANIMATION_4_RANGE
 
+// Animation 5 definitions
+// RGB fades along entire length of strip
 #define ANIMATION_5_TIME    180
 #define ANIMATION_5_LOOPS   4
 #define ANIMATION_5_START_1 0

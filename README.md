@@ -14,15 +14,16 @@ which then talk to the receiver modules (in series).
 ## Repsitory structure
 Code for uart, animations, and utils are in the `library` folder.
 These functions are used by all sides except the hub,
-and the individual directories are hard linked to the library folder.
-Macros in the files compile code only relevant to the project
-and definitions in each project's `config.h` file sets the behavior.
-The central hub uses the macro `IS_CENTRAL_HUB` in its main.h 
-to set the behavior of `animations.*` within the central hub code.
+and the individual files in each project are hard linked to the library folder.
+Macros in in each project's `config.h` file set the behavior, definining
+what in each file should be compiled code for each project
+
+The central hub also uses animations.c/h to keep animation driving aligned.
+The macro `IS_CENTRAL_HUB` in its main sets the behavior to be different 
+from what is used in the hubs that drive leds
 
 ## Central Hub
-The central hub manages the animations and is responsible for telling the
-top and bottom side to update based on the most recent sensor readings.
+The central hub manages the animations by sending an animation number and index.
 The sensor readings do not actually go to the central hub.
 
 To update animations, it sends a sync signal to the emitter hubs.
@@ -32,7 +33,7 @@ This sync signal sets the animation number and index for that animation.
 The emitter controllers are responsible for controlling the WS2812 LEDs
 on the emitter side of the system and also displaying sensed positions
 if an object was sensed. 
-It also passes required data along to the receiver side.
+It also passes commands from the central hub to the receiver side.
 
 ## Receiver Hub Code
 The receiver hub controls the receiver side LEDs manages the sensor readings.

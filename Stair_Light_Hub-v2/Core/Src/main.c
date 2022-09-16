@@ -142,7 +142,7 @@ int main(void)
 	  // Alert peripherals that this round of updates is complete
 	  //sendCommand(getTopUART(), UPDATE_COMPLETE);
 	  //sendCommand(getBotUART(), UPDATE_COMPLETE);
-	  HAL_Delay(2);
+	  HAL_Delay(15);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
